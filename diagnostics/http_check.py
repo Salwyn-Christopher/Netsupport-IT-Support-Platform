@@ -141,7 +141,19 @@ def check_endpoint(
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
 
-        with urllib.request.urlopen(req, timeout=timeout, context=ctx) as response:
+        from security.target_security import is_safe_target
+        class SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, req, fp, code, msg, hdrs, newurl):
+                if not is_safe_target(newurl):
+                    raise urllib.error.URLError("Redirected to an unsafe target")
+                return super().redirect_request(req, fp, code, msg, hdrs, newurl)
+
+        handlers = [SafeRedirectHandler()]
+        if ctx:
+            handlers.append(urllib.request.HTTPSHandler(context=ctx))
+        opener = urllib.request.build_opener(*handlers)
+
+        with opener.open(req, timeout=timeout) as response:
             response_ms = round((time.monotonic() - start) * 1000, 2)
             final_url = response.geturl()
             status = response.status

@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NetSupport — IT Support & Network Diagnostics Platform</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -1297,7 +1298,6 @@
       document.getElementById('scanAllBtn').disabled = bool;
       document.querySelectorAll('.module-btn').forEach(b => b.disabled = bool);
     }
-
     async function post(endpoint, body) {
       const r = await fetch(endpoint, {
         method: 'POST',
@@ -1305,6 +1305,16 @@
         body: JSON.stringify(body)
       });
       return r.json();
+    }
+
+    function escapeHtml(unsafe) {
+      if (!unsafe) return '';
+      return String(unsafe)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
     function latencyColor(ms) {

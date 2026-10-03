@@ -23,6 +23,8 @@ def test_unsafe_targets():
     assert is_safe_target("10.0.0.1") is False
     assert is_safe_target("192.168.1.1") is False
     assert is_safe_target("http://169.254.169.254/latest/meta-data") is False
+    assert is_safe_target("224.0.0.1") is False  # Multicast
+    assert is_safe_target("240.0.0.1") is False  # Reserved
 
 def test_api_rejection(client):
     r = client.post("/api/ping", json={"host": "127.0.0.1"})

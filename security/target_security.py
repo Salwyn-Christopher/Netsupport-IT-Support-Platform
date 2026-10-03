@@ -11,6 +11,7 @@ def is_safe_target(target: str) -> bool:
         if not hostname:
             return False
     else:
+        # Check if they passed something like host:port without scheme
         hostname = target.split("/")[0].split(":")[0]
 
     if not hostname:
@@ -23,7 +24,11 @@ def is_safe_target(target: str) -> bool:
         # Try to resolve the hostname
         ip = socket.gethostbyname(hostname)
         ip_obj = ipaddress.ip_address(ip)
-        if ip_obj.is_loopback or ip_obj.is_private or ip_obj.is_link_local:
+        if (ip_obj.is_loopback or
+            ip_obj.is_private or
+            ip_obj.is_link_local or
+            ip_obj.is_multicast or
+            ip_obj.is_reserved):
             return False
     except socket.gaierror:
         # If it doesn't resolve, let the DNS check handle the failure normally
