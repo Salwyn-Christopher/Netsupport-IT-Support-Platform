@@ -1,42 +1,56 @@
-# Salwyn-Christopher / netsupport-it-support-platform
-
 # NetSupport
-### IT Support & Network Diagnostics Platform
+## IT Support & Network Diagnostics Platform
 
-**Python • Flask • SQLite • Networking • REST API • Pytest**
-
-`[Incident Management]` `[Diagnostics]` `[L1/L2 Workflow]` `[Security Validation]` `[Automated Tests]`
+1. Overview
+2. Key Capabilities
+3. Incident Management
+4. Network Diagnostics
+5. Support Reasoning
+6. Security Validation
+7. Architecture
+8. Technology Stack
+9. API Overview
+10. Screenshots / Demo
+11. Local Setup
+12. Testing
+13. Deployment
+14. Known Hosting Limitations
+15. Attribution
+16. License
 
 ---
 
-Support engineers need to collect network evidence, investigate incidents, document findings, escalate difficult cases, and record resolution.
+## 1. Overview
+NetSupport is a streamlined platform combining network diagnostics with incident management and L1/L2 support workflows. It enables support engineers to investigate network issues, collect diagnostic evidence, escalate difficult cases, and document resolutions.
 
-NetSupport combines network diagnostics with incident management and L1/L2 support workflow to streamline this exact process.
+## 2. Key Capabilities
+- **Unified Interface:** Run diagnostics and manage incidents from a single dashboard.
+- **Automated Evidence Collection:** Diagnostic results are automatically attached to support tickets.
+- **Rule-Based Analysis:** Translates raw networking data into actionable support insights.
+- **Target Security:** Strict SSRF protections and target sanitization.
 
-## My Contributions
+## 3. Incident Management
+The platform features a complete ticket lifecycle:
+- Create, open, investigate, diagnose, escalate, and resolve incidents.
+- Track L1/L2 workflow progression.
+- Persist incident data via SQLite.
 
-- incident management architecture
-- SQLite persistence
-- ticket lifecycle
-- L1/L2 workflow
-- escalation
-- resolution tracking
-- diagnostic evidence
-- rule-based support reasoning
-- target security validation
-- API integration
-- UI/UX redesign
-- Quick Target workflow
-- automated testing
-- deployment configuration
-- documentation
+## 4. Network Diagnostics
+Integrated networking tools for real-time investigation:
+- DNS resolution checks
+- Ping and latency measurements
+- TCP port scanning
+- HTTP/HTTPS endpoint validation
+- Traceroute
 
-## Upstream Attribution
+## 5. Support Reasoning
+A deterministic, rule-based reasoning module interprets diagnostic output (e.g., DNS failures, port closures) to recommend troubleshooting steps without relying on external AI APIs.
 
-NetSupport incorporates/adapts networking functionality from the MIT-licensed Network Diagnostic Toolkit by Sandrine Uwineza. See [PROVENANCE.md](PROVENANCE.md) for details.
+## 6. Security Validation
+Strict validation prevents Server-Side Request Forgery (SSRF) and localized path traversal. Network calls are only permitted against safe targets, actively blocking loopback (127.0.0.1, ::1) and internal IP ranges before execution.
 
-## Architecture
-
+## 7. Architecture
+```text
                 NetSupport UI
                      |
                 Flask API
@@ -48,24 +62,56 @@ NetSupport incorporates/adapts networking functionality from the MIT-licensed Ne
                      |
              Target Security
                  Validation
+```
 
-## Core Features
+## 8. Technology Stack
+- **Backend:** Python, Flask
+- **Persistence:** SQLite
+- **Network Core:** dnspython, subprocess-based diagnostics
+- **API:** REST
+- **Testing:** Pytest
 
-- Network diagnostics
-- DNS checks
-- Ping/latency
-- TCP port checks
-- HTTP/HTTPS
-- TLS
-- Traceroute
-- Incident management
-- L1/L2 escalation
-- Diagnostic evidence
-- Rule-based troubleshooting
-- Target validation
-- API
-- Automated testing
+## 9. API Overview
+- `GET /api/incidents`: List all incidents.
+- `POST /api/incidents`: Create a new incident.
+- `GET /api/incidents/<id>`: Retrieve incident details.
+- `POST /api/incidents/<id>/status`: Update status and notes.
+- `POST /api/ping`, `/api/dns`, `/api/ports`, `/api/http`: Execute network diagnostics.
 
-## License
+## 10. Screenshots / Demo
+*Screenshots and live demo link will be added once deployed.*
 
-This project contains upstream MIT-licensed material. See the `LICENSE` file for the original copyright and permission notice.
+## 11. Local Setup
+```bash
+# Clone repository
+git clone https://github.com/Salwyn-Christopher/Netsupport-IT-Support-Platform.git
+cd Netsupport-IT-Support-Platform
+
+# Create virtual environment
+python -m venv venv
+venv\Scripts\activate  # Windows
+source venv/bin/activate  # macOS/Linux
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start application
+python app.py
+```
+Access the application at `http://127.0.0.1:5000`.
+
+## 12. Testing
+The project includes a comprehensive Pytest suite covering diagnostics, reasoning, incidents, and validation.
+```bash
+python -m pytest tests/ -v
+python -m pytest tests/ --cov=.
+```
+
+## 13. Deployment
+The application is configured for deployment on Render using Gunicorn.
+- **Procfile:** `web: gunicorn app:app`
+- **Configuration:** `render.yaml`
+- **Dependencies:** `requirements.txt`
+
+## 14. Known Hosting Limitations
+**Render Free Tier Deployment:** The application stores incidents dynamically in a local SQLite database (`core/incidents.db`). Because Render's Free tier utilizes ephemeral filesystems, the database will be reset and incident data will be wiped out whenever the application sleeps or is redeployed. This stateless behavior is by design for this portfolio demonstration. For durable persistence, migrate to PostgreSQL.

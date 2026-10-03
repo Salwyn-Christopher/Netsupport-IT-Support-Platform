@@ -2,7 +2,7 @@
 diagnostics package — NetSupport – IT Support Incident Management Platform
 
 Exports the core diagnostic functions for use in both
-the CLI (main.py) and the web dashboard (app.py).
+the CLI (cli.py) and the web dashboard (app.py).
 """
 
 from .ping        import ping_icmp, ping_tcp, ping_sweep, PingResult

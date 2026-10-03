@@ -3,7 +3,7 @@ ping.py — ICMP ping and TCP-based reachability checker.
 
 Uses subprocess for ICMP ping (platform-aware) and falls back
 to TCP socket for environments without raw socket privileges
-(e.g., shared hosting, Railway containers).
+(e.g., shared hosting, limited containers).
 """
 
 import subprocess
@@ -84,7 +84,7 @@ def ping_icmp(host: str, count: int = 4, timeout: int = 3) -> PingResult:
 def ping_tcp(host: str, port: int = 80, timeout: int = 3) -> PingResult:
     """
     TCP-based connectivity check — used as fallback when ICMP
-    is not available (containerised environments, Railway, etc.).
+    is not available (containerised environments, restricted platforms, etc.).
     """
     start = time.monotonic()
     try:

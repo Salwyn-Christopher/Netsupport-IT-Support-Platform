@@ -4,7 +4,7 @@ app.py — Flask web dashboard for NetSupport – IT Support Incident Management
 Provides a REST API and modern web interface for running
 network diagnostics without the command line.
 
-Deployable on Railway, Render, Fly.io (free tier) or locally.
+Deployable on Render, Fly.io (free tier) or locally.
 """
 
 import os
@@ -49,7 +49,7 @@ def index():
 
 @app.route("/health")
 def health():
-    """Health check endpoint for Railway/Render uptime monitoring."""
+    """Health check endpoint for platform uptime monitoring."""
     return jsonify({
         "status": "healthy",
         "timestamp": datetime.now(IST).isoformat(),

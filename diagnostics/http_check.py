@@ -128,8 +128,8 @@ def check_endpoint(
             url,
             headers={
                 "User-Agent": (
-                    "NetworkDiagnosticToolkit/1.0 "
-                    "(Technical Support Engineer Tool; "
+                    "NetSupport/1.0 "
+                    "(IT Support & Network Diagnostics; "
                     "NetSupport/1.0"
                 )
             }

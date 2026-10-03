@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-main.py — NetSupport – IT Support Incident Management Platform
+cli.py — NetSupport – IT Support & Network Diagnostics Platform
 
 A systematic network troubleshooting tool for Technical Support
 Engineers. Run individual diagnostic modules or a full sweep
@@ -8,8 +8,7 @@ with a single command.
 
 NetSupport extension
 Architecture: NetSupport Incident Management Platform
-Base Diagnostic Engine: Adapted from MIT-licensed network-diagnostic-toolkit (S. Uwineza)
-License: MIT
+
 """
 
 import argparse
@@ -26,25 +25,25 @@ def build_parser() -> argparse.ArgumentParser:
         prog="netdiag",
         description=(
             "NetSupport – IT Support Incident Management Platform — systematic troubleshooting "
-            "for Technical Support Engineers"
+            "for IT Support & Network Diagnostics"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   # Full diagnostic sweep
-  python main.py --host google.com --all
+  python cli.py --host google.com --all
 
   # Ping + DNS only
-  python main.py --host 8.8.8.8 --ping --dns
+  python cli.py --host 8.8.8.8 --ping --dns
 
   # Port scan with specific ports
-  python main.py --host example.com --ports 80 443 22 3306
+  python cli.py --host example.com --ports 80 443 22 3306
 
   # HTTP health check
-  python main.py --url https://example.com --http
+  python cli.py --url https://example.com --http
 
   # Full sweep and save report
-  python main.py --host google.com --all --report reports/output.md
+  python cli.py --host google.com --all --report reports/output.md
         """
     )
 

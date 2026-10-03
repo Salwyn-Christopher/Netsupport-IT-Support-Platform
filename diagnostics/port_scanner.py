@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 
-# Common ports a Technical Support Engineer would check
+# Common ports checked during network diagnostics
 WELL_KNOWN_PORTS: dict[int, str] = {
     21:   "FTP",
     22:   "SSH",
