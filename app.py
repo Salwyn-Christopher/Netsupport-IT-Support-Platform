@@ -66,16 +66,17 @@ def api_ping():
     host = data.get("host", "").strip()
     if not host:
         return jsonify({"error": "host is required"}), 400
-    if not is_safe_target(host):
+    is_safe, resolved_ip = is_safe_target(host)
+    if not is_safe:
         return jsonify({"error": "Invalid or restricted target address."}), 403
 
     count   = min(int(data.get("count", 4)), 8)
     timeout = min(int(data.get("timeout", 3)), 10)
 
     try:
-        result = ping_icmp(host, count=count, timeout=timeout)
+        result = ping_icmp(resolved_ip or host, count=count, timeout=timeout)
     except Exception:
-        result = ping_tcp(host, timeout=timeout)
+        result = ping_tcp(resolved_ip or host, timeout=timeout)
 
     return jsonify({
         "host":              result.host,
@@ -95,7 +96,8 @@ def api_dns():
     domain = data.get("domain", "").strip()
     if not domain:
         return jsonify({"error": "domain is required"}), 400
-    if not is_safe_target(domain):
+    is_safe, _ = is_safe_target(domain)
+    if not is_safe:
         return jsonify({"error": "Invalid or restricted target address."}), 403
 
     result = resolve_domain(domain)
@@ -118,7 +120,8 @@ def api_ports():
     host = data.get("host", "").strip()
     if not host:
         return jsonify({"error": "host is required"}), 400
-    if not is_safe_target(host):
+    is_safe, resolved_ip = is_safe_target(host)
+    if not is_safe:
         return jsonify({"error": "Invalid or restricted target address."}), 403
 
     ports   = data.get("ports")
@@ -126,13 +129,14 @@ def api_ports():
     timeout = min(float(data.get("timeout", 2)), 5)
 
     try:
+        target_ip = resolved_ip or host
         if ports:
             ports = [int(p) for p in ports[:50]]  # cap at 50
-            results = scan_ports(host, ports, timeout=timeout)
+            results = scan_ports(target_ip, ports, timeout=timeout)
         elif group:
-            results = scan_port_group(host, group, timeout=timeout)
+            results = scan_port_group(target_ip, group, timeout=timeout)
         else:
-            results = scan_common(host)
+            results = scan_common(target_ip)
 
         return jsonify([{
             "port":       r.port,
@@ -152,7 +156,8 @@ def api_http():
     url  = data.get("url", "").strip()
     if not url:
         return jsonify({"error": "url is required"}), 400
-    if not is_safe_target(url):
+    is_safe, _ = is_safe_target(url)
+    if not is_safe:
         return jsonify({"error": "Invalid or restricted target address."}), 403
 
     timeout = min(int(data.get("timeout", 10)), 15)
@@ -191,13 +196,14 @@ def api_traceroute():
     host = data.get("host", "").strip()
     if not host:
         return jsonify({"error": "host is required"}), 400
-    if not is_safe_target(host):
+    is_safe, resolved_ip = is_safe_target(host)
+    if not is_safe:
         return jsonify({"error": "Invalid or restricted target address."}), 403
 
     max_hops = min(int(data.get("max_hops", 20)), 30)
     timeout  = min(int(data.get("timeout", 3)), 5)
 
-    result = traceroute(host, max_hops=max_hops, timeout=timeout)
+    result = traceroute(resolved_ip or host, max_hops=max_hops, timeout=timeout)
     return jsonify({
         "destination":    result.destination,
         "destination_ip": result.destination_ip,
@@ -222,7 +228,8 @@ def api_full_scan():
     host = data.get("host", "").strip()
     if not host:
         return jsonify({"error": "host is required"}), 400
-    if not is_safe_target(host):
+    is_safe, resolved_ip = is_safe_target(host)
+    if not is_safe:
         return jsonify({"error": "Invalid or restricted target address."}), 403
 
     timeout = min(int(data.get("timeout", 5)), 10)
@@ -230,7 +237,7 @@ def api_full_scan():
 
     # Ping
     try:
-        p = ping_icmp(host, count=3, timeout=timeout)
+        p = ping_icmp(resolved_ip or host, count=3, timeout=timeout)
         report["ping"] = {
             "reachable": p.reachable,
             "method":    p.method,
@@ -253,7 +260,7 @@ def api_full_scan():
 
     # Common ports
     try:
-        pr = scan_common(host)
+        pr = scan_common(resolved_ip or host)
         report["ports"] = [{
             "port":    r.port,
             "service": r.service,
@@ -310,7 +317,8 @@ def api_create_incident():
     if not customer or not issue or not target_host_or_url:
         return jsonify({"error": "customer, target, and issue are required"}), 400
 
-    if not is_safe_target(target_host_or_url):
+    is_safe, _ = is_safe_target(target_host_or_url)
+    if not is_safe:
         return jsonify({"error": "Invalid or restricted target address."}), 403
 
     incident = incident_store.create_incident(customer, target_host_or_url, category, issue, priority)

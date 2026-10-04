@@ -1253,8 +1253,10 @@
 
     // ── Clock ────────────────────────────────────────────────────────────────
     function updateClock() {
+      const clockEl = document.getElementById('clock');
+      if (!clockEl) return;
       const options = { timeZone: 'Asia/Kolkata', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' };
-      document.getElementById('clock').textContent =
+      clockEl.textContent =
         new Intl.DateTimeFormat('en-GB', options).format(new Date()) + ' IST';
     }
     setInterval(updateClock, 1000);
@@ -1570,21 +1572,26 @@
       const clean = host.replace(/^https?:\/\//, '');
       const url = host.startsWith('http') ? host : `https://${host}`;
 
-      const [pingR, dnsR, portsR, httpR, traceR] = await Promise.allSettled([
-        post('/api/ping', { host: clean }),
-        post('/api/dns', { domain: clean }),
-        post('/api/ports', { host: clean, group: 'common' }),
-        post('/api/http', { url }),
-        post('/api/traceroute', { host: clean, max_hops: 15 }),
-      ]);
+      try {
+        const pingR = await post('/api/ping', { host: clean });
+        if (pingR.error && pingR.error.includes("Invalid or restricted")) {
+          throw new Error(pingR.error);
+        }
 
-      const get = r => r.status === 'fulfilled' ? r.value : null;
+        const [dnsR, portsR, httpR, traceR] = await Promise.allSettled([
+          post('/api/dns', { domain: clean }),
+          post('/api/ports', { host: clean, group: 'common' }),
+          post('/api/http', { url }),
+          post('/api/traceroute', { host: clean, max_hops: 15 }),
+        ]);
 
-      const ping = get(pingR);
-      const dns = get(dnsR);
-      const ports = get(portsR);
-      const http = get(httpR);
-      const trace = get(traceR);
+        const get = r => r.status === 'fulfilled' ? r.value : null;
+
+        const ping = pingR;
+        const dns = get(dnsR);
+        const ports = get(portsR);
+        const http = get(httpR);
+        const trace = get(traceR);
 
       // Summary bar
       const summaryHTML = `
@@ -1637,6 +1644,14 @@
 
       document.getElementById('resultsArea').innerHTML = summaryHTML + cardsHTML;
       setLoading(false);
+      } catch (err) {
+        document.getElementById('resultsArea').innerHTML =
+          `<div class="empty-state" style="color: var(--red);">
+             <div class="empty-icon">⚠️</div>
+             <div>${err.message || 'Error occurred during scan'}</div>
+           </div>`;
+        setLoading(false);
+      }
     }
 
     // Enter key support

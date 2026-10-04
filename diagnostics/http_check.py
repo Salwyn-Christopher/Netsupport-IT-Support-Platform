@@ -144,7 +144,8 @@ def check_endpoint(
         from security.target_security import is_safe_target
         class SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
             def redirect_request(self, req, fp, code, msg, hdrs, newurl):
-                if not is_safe_target(newurl):
+                is_safe, _ = is_safe_target(newurl)
+                if not is_safe:
                     raise urllib.error.URLError("Redirected to an unsafe target")
                 return super().redirect_request(req, fp, code, msg, hdrs, newurl)
 
