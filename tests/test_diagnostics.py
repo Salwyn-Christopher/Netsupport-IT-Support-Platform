@@ -177,6 +177,7 @@ class TestFlaskApp:
         assert r.status_code == 200
         data = r.get_json()
         assert data["status"] == "healthy"
+        assert "commit" in data
 
     def test_api_dns_missing_domain(self, client):
         r = client.post("/api/dns", json={})

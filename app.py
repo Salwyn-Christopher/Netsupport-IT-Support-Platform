@@ -54,7 +54,8 @@ def health():
         "status": "healthy",
         "timestamp": datetime.now(IST).isoformat(),
         "service": "netsupport",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "commit": os.environ.get("RENDER_GIT_COMMIT", "unknown")
     })
 
 
