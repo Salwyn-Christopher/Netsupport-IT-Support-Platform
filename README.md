@@ -15,8 +15,6 @@
 12. Testing
 13. Deployment
 14. Known Hosting Limitations
-15. Attribution
-16. License
 
 ---
 
